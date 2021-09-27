@@ -1,0 +1,20 @@
+{
+  "name": "test-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "akarsh",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.4.0",
+    "dotenv": "^8.2.0",
+    "emoji-unicode": "^2.0.1",
+    "express": "^4.17.1",
+    "googleapis": "^39.2.0",
+    "mysql": "^2.18.1"
+  }
+}
