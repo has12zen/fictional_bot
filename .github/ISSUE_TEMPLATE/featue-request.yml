@@ -6,11 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this feature request!
   - type: textarea
     id: what-is-the-feature
     attributes:
-      label: What should be changed?
+      label: What should be improved?
       description: Explain in detail what the feature is and why it is needed. 
     validations:
       required: true
