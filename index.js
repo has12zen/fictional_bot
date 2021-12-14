@@ -67,6 +67,10 @@ client.on("message", async (message) => {
   } else if (command === "SendGMEMessage") {
     const channel = await client.channels.cache.get(reactChannelId);
     botCommands.sendGMEMessage(channel);
+  } else if (command === "poll") {
+    if (args.length == 0) return;
+
+    botCommands.handlePoll(fullMessage, message);
   } else {
     botCommands.wrongCommand(message);
   }
@@ -74,16 +78,90 @@ client.on("message", async (message) => {
 
 client.on("raw", async (packet) => {
   // We don't want this to run on unrelated packets
-  if (!["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE"].includes(packet.t))
-    return;
-  // Grab the channel to check the message from
-  if (packet.d.channel_id !== reactChannelId) return;
-  const channel = await client.channels.fetch(packet.d.channel_id);
-  // console.log(packet.d);
-  console.log("em");
-  channel.messages
-    .fetch(packet.d.message_id)
-    .then(async (message) => {
+  try {
+    if (!["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE"].includes(packet.t))
+      return;
+
+    if (packet.d.user_id === client.user.id) return;
+
+    const channel = await client.channels.fetch(packet.d.channel_id);
+    const message = await channel.messages.fetch(packet.d.message_id);
+
+    if (
+      message.author.bot &&
+      message.author.id === client.user.id &&
+      message.content === "" &&
+      message.embeds.length === 1 &&
+      message.embeds[0].title === "Poll" &&
+      packet.t === "MESSAGE_REACTION_ADD"
+    ) {
+      if (message.embeds[0].fields.length == 1) {
+        const reactions = message.reactions.cache;
+        const optionsCount = message.embeds[0].fields[0].name.split(" ")[0];
+
+        const letters = [
+          "🇦",
+          "🇧",
+          "🇨",
+          "🇩",
+          "🇪",
+          "🇫",
+          "🇬",
+          "🇭",
+          "🇮",
+          "🇯",
+          "🇰",
+          "🇱",
+          "🇲",
+          "🇳",
+          "🇴",
+          "🇵",
+          "🇶",
+          "🇷",
+          "🇸",
+          "🇹",
+          "🇺",
+          "🇻",
+          "🇼",
+          "🇽",
+          "🇾",
+          "🇿",
+        ];
+
+        if (!letters.slice(0, optionsCount).includes(packet.d.emoji.name)) {
+          const rxn = message.reactions.resolve(packet.d.emoji.name);
+          if (rxn) rxn.remove();
+        } else {
+          reactions.forEach((rxn) => {
+            if (rxn._emoji.name != packet.d.emoji.name) {
+              rxn.users.remove(packet.d.user_id);
+            }
+          });
+        }
+      } else {
+        const reactions = message.reactions.cache;
+
+        if (packet.d.emoji.name === "👍" || packet.d.emoji.name === "👎")
+          reactions.forEach((rxn) => {
+            if (rxn._emoji.name != packet.d.emoji.name) {
+              rxn.users.remove(packet.d.user_id);
+            }
+          });
+        else
+          reactions.forEach((rxn) => {
+            if (rxn._emoji.name != "👍" && rxn._emoji.name != "👎") {
+              rxn.remove();
+            }
+          });
+      }
+    }
+
+    // Grab the channel to check the message from
+    if (packet.d.channel_id !== reactChannelId) return;
+    // console.log(packet.d);
+    console.log("em");
+
+    if (message) {
       let messagelocation = emojiBound[packet.d.message_id];
       const emoji = packet.d.emoji.name;
       console.log(messagelocation, emoji);
@@ -139,8 +217,10 @@ client.on("raw", async (packet) => {
         // console.log('RM1');
         util.handleReaction(role, user, message, false);
       }
-    })
-    .catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.error(err);
+  }
 });
 // Discord Client Login
 client.login(process.env.TOKEN);

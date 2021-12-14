@@ -19,6 +19,7 @@
   "Games": "Games: \n\nPUBG:😎     Valorant😍\n\nCSGO:🤣     AMONG US:👏\n\nCOD:👍",
   "Others": "Other :\n👀Aspiring For Civil Services     \n👏:Aspiring For Masters in Foreign\n🎓:Aspiring For Ph.D.  \n🙂: Aspiring For MBA\n👍:Open For Mentoring  \n🍀:Open For Project Collaboration\n",
   "err": "Some unknown error occurred pls try again later and contact admin",
-  "wrongCommand": "Youv'e Entered the wrong command\n available commands are \n!verif in #verify  \n!refresh",
+  "wrongCommand": "You've entered a wrong command\nAvailable commands are \n!verif in #verify  \n!refresh",
+  "wrongPollCommand": "Invalid syntax for command `poll`\nUse `!poll help` for syntax",
   "remaining": "Technical:\n\n🎉: Backend                             😎: Cloud\n\n😮: Flask                                    🍀: Competitive Programming\n\n😍: Cross Platform App         👌: MEVN\n\n👀: Spring Framework             😇: Databases\n\n"
 }

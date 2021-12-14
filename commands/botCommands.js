@@ -1,3 +1,4 @@
+const { MessageEmbed } = require("discord.js");
 const { gsrun } = require("../google/gsRun");
 const messages = require("../data/messages.json");
 const roleIDs = require("../data/roleID.json");
@@ -116,6 +117,7 @@ exports.ee18 = (message) => {
     message.member.send("Failed! Please check the syntax.");
   }
 };
+
 exports.sendGMEMessage = async (channel) => {
   try {
     await channel.send(messages.Games);
@@ -125,15 +127,17 @@ exports.sendGMEMessage = async (channel) => {
     // message.member.send('Failed!');
   }
 };
+
 exports.wrongCommand = async (message) => {
   try {
-    message.author.send(message.wrongCommand);
+    message.author.send(messages.wrongCommand);
     // message.member.send('Success!');
   } catch (err) {
     console.log(err);
     // message.member.send('Failed!');
   }
 };
+
 exports.sendMessage = (client, message) => {
   try {
     let channel_id = "";
@@ -154,6 +158,7 @@ exports.sendMessage = (client, message) => {
     message.member.send("Failed!");
   }
 };
+
 exports.sendRoles = async (channel) => {
   try {
     await channel.send(messages.Roles);
@@ -173,6 +178,116 @@ exports.sendRoles = async (channel) => {
     console.log(err);
     // message.member.send('Failed!');
   }
+};
+
+const isValidSyntax = (cmnd) => {
+  const template = /^{([^}]*)\}((\s)*\[([^\]]*)\])*$/;
+  const valid = template.test(cmnd);
+  // console.log(valid);
+  // if (valid) console.log(cmnd.match(template));
+
+  return valid;
+};
+
+exports.handlePoll = async (command, msg) => {
+  const truncMessage = command.replace("poll", "").trim();
+  if (truncMessage === "help") {
+    // msg.reply(
+    //   "For syntax  \t- `!poll help`\nYes/No poll   - `!poll {msg}`\nWith options - `!poll {msg}[opt1][opt2]...[optk]`"
+    // );
+
+    const help = new MessageEmbed()
+      .setColor("#0099ff")
+      .setTitle("Poll command syntax")
+      .addFields(
+        { name: "Help", value: "`!poll help`" },
+        { name: "Yes/No poll", value: "`!poll {msg}`" },
+        {
+          name: "Poll with options",
+          value: "`!poll {msg}[opt1][opt2]...[optk]`",
+        }
+      );
+
+    msg.channel.send({ embed: help });
+
+    return;
+  }
+
+  if (!isValidSyntax(truncMessage)) {
+    msg.author.send(messages.wrongPollCommand);
+
+    return;
+  }
+
+  const matchPollMsg = /\{([^}]*)\}/g;
+  const matchPollOptions = /(\s)*\[([^\]]*)\]/g;
+
+  const pollMessage = truncMessage.match(matchPollMsg)[0];
+  const optionsMessage = truncMessage.replace(pollMessage, "");
+  const pollOptions = optionsMessage.match(matchPollOptions);
+
+  const letters = [
+    "🇦",
+    "🇧",
+    "🇨",
+    "🇩",
+    "🇪",
+    "🇫",
+    "🇬",
+    "🇭",
+    "🇮",
+    "🇯",
+    "🇰",
+    "🇱",
+    "🇲",
+    "🇳",
+    "🇴",
+    "🇵",
+    "🇶",
+    "🇷",
+    "🇸",
+    "🇹",
+    "🇺",
+    "🇻",
+    "🇼",
+    "🇽",
+    "🇾",
+    "🇿",
+  ];
+
+  let pollDescription = pollMessage.slice(1, -1).trim() + "\n";
+  let numOptions = 0;
+  let pollDescriptionOptions = "";
+
+  if (pollOptions)
+    pollOptions.forEach((el) => {
+      const option = el.trim().slice(1, -1).trim();
+      if (option !== "") {
+        pollDescriptionOptions += `\n${letters[numOptions]}\t${option}`;
+        ++numOptions;
+      }
+    });
+
+  const poll = new MessageEmbed()
+    .setColor("#0099ff")
+    .setTitle("Poll")
+    .setDescription(pollDescription);
+
+  if (pollDescriptionOptions !== "")
+    poll.addFields({
+      name: `${numOptions} Option${numOptions == 1 ? "" : "s"}`,
+      value: pollDescriptionOptions,
+    });
+
+  msg.channel.send({ embed: poll }).then((reaction) => {
+    if (numOptions > 0)
+      for (let i = 0; i < numOptions; i++)
+        reaction.react(letters[i]).catch(console.error);
+    else {
+      reaction.react("👍").catch(console.error);
+      reaction.react("👎").catch(console.error);
+    }
+  });
 };
 
 // 5 for M.SC
