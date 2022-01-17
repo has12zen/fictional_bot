@@ -8,10 +8,11 @@ const { gsrun } = require("./google/gsRun");
 const botCommands = require("./commands/botCommands");
 const util = require("./utility");
 const emojiUnicode = require("emoji-unicode");
-const reactChannelId = ""; //Replace this with the channel for which you want react roles
-const verifChannelsId = ""; // replace this with the channel id of #verif
+const reactChannelId = process.env.REACT_CHANNEL_ID; //Replace this with the channel for which you want react roles
+const verifChannelsId = process.env.VERIF_CHANNEL_ID // replace this with the channel id of #verif
 const emojiBound = require("./data/emojiBound.json");
 const messages = require("./data/messages.json");
+const verifCommands= require("./commands/verify");
 
 // Google Authorize + Load Data
 gClientAuthorize(gClient);
@@ -51,10 +52,10 @@ client.on("message", async (message) => {
     (command === "verif" || command === "verify") &&
     message.channel.id === verifChannelsId
   ) {
-    botCommands.refresh(gClient, message).then((newData) => {
+    botCommands.refreshReplyLess(gClient, message).then((newData) => {
       data = newData;
     }); // simple work around but not clean
-    botCommands.verifyMember(message, data, args);
+    verifCommands.verifyMember(message, data, args);
   } else if (command === "addRole")
     message.member.reply("Nothing here check back later");
   else if (command === "assign") botCommands.assignRole(message, args);
@@ -224,3 +225,6 @@ client.on("raw", async (packet) => {
 });
 // Discord Client Login
 client.login(process.env.TOKEN);
+process.on('unhandledRejection', error => {
+    console.log('Test error:', error);
+});
