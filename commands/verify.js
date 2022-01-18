@@ -145,7 +145,7 @@ const setUserNickname = (member, nickname) => {
     }
   } catch (e) {
     console.log("could not update nickname:>", e);
-    throw new Error(e);
+    // throw new Error(e);
   }
 };
 
